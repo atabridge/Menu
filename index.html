@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Menü Fiyat Hesaplama</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section h2 {
+            background: #34495e;
+            color: white;
+            padding: 10px;
+            margin: 0 0 10px 0;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .input {
+            background-color: #fff3cd;
+        }
+        .calculated {
+            background-color: #d1ecf1;
+            font-weight: bold;
+        }
+        .profit {
+            background-color: #d4edda;
+            font-weight: bold;
+        }
+        .warning {
+            background-color: #f8d7da;
+        }
+        .add-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .formula-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+        input[type="number"], input[type="text"] {
+            width: 80px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        select {
+            width: 100px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Restoran Menü Fiyat Hesaplama Sistemi</h1>
+        
+        <div class="formula-info">
+            <h3>📊 Fiyatlandırma Formülleri:</h3>
+            <ul>
+                <li><strong>Toplam Maliyet:</strong> Malzeme Maliyeti + İşçilik + Genel Giderler</li>
+                <li><strong>Hedef Kar Marjı:</strong> %25-35 arası önerilir</li>
+                <li><strong>Satış Fiyatı:</strong> Toplam Maliyet ÷ (1 - Kar Marjı)</li>
+                <li><strong>Net Kar:</strong> Satış Fiyatı - Toplam Maliyet</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🍕 Örnek: Döner Menü Fiyat Hesaplama</h2>
+            <button class="add-btn" onclick="addMenuItem()">+ Yeni Menü Öğesi Ekle</button>
+            
+            <table id="menuTable">
+                <thead>
+                    <tr>
+                        <th>Menü Öğesi</th>
+                        <th>Kategori</th>
+                        <th>Porsiyon (gr)</th>
+                        <th>Malzeme Maliyeti (₺)</th>
+                        <th>İşçilik (%)</th>
+                        <th>Genel Gider (%)</th>
+                        <th>Toplam Maliyet (₺)</th>
+                        <th>Kar Marjı (%)</th>
+                        <th>Satış Fiyatı (₺)</th>
+                        <th>Net Kar (₺)</th>
+                        <th>Kar/Maliyet</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" value="Döner Porsiyon" onchange="updateCalculations()"></td>
+                        <td>
+                            <select onchange="updateCalculations()">
+                                <option value="Ana Yemek">Ana Yemek</option>
+                                <option value="Starter">Başlangıç</option>
+                                <option value="İçecek">İçecek</option>
+                                <option value="Tatlı">Tatlı</option>
+                            </select>
+                        </td>
+                        <td><input type="number" value="250" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="15.50" step="0.01" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="20" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="15" onchange="updateCalculations()"></td>
+                        <td class="calculated">20.93</td>
+                        <td class="input"><input type="number" value="30" onchange="updateCalculations()"></td>
+                        <td class="profit">29.90</td>
+                        <td class="profit">8.97</td>
+                        <td class="calculated">42.9%</td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">Sil</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="Döner Dürüm" onchange="updateCalculations()"></td>
+                        <td>
+                            <select onchange="updateCalculations()">
+                                <option value="Ana Yemek" selected>Ana Yemek</option>
+                                <option value="Starter">Başlangıç</option>
+                                <option value="İçecek">İçecek</option>
+                                <option value="Tatlı">Tatlı</option>
+                            </select>
+                        </td>
+                        <td><input type="number" value="300" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="18.75" step="0.01" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="22" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="18" onchange="updateCalculations()"></td>
+                        <td class="calculated">26.25</td>
+                        <td class="input"><input type="number" value="28" onchange="updateCalculations()"></td>
+                        <td class="profit">36.46</td>
+                        <td class="profit">10.21</td>
+                        <td class="calculated">38.9%</td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">Sil</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="Ayran" onchange="updateCalculations()"></td>
+                        <td>
+                            <select onchange="updateCalculations()">
+                                <option value="Ana Yemek">Ana Yemek</option>
+                                <option value="Starter">Başlangıç</option>
+                                <option value="İçecek" selected>İçecek</option>
+                                <option value="Tatlı">Tatlı</option>
+                            </select>
+                        </td>
+                        <td><input type="number" value="250" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="2.50" step="0.01" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="10" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="10" onchange="updateCalculations()"></td>
+                        <td class="calculated">3.00</td>
+                        <td class="input"><input type="number" value="50" onchange="updateCalculations()"></td>
+                        <td class="profit">6.00</td>
+                        <td class="profit">3.00</td>
+                        <td class="calculated">100.0%</td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">Sil</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" value="Salata" onchange="updateCalculations()"></td>
+                        <td>
+                            <select onchange="updateCalculations()">
+                                <option value="Ana Yemek">Ana Yemek</option>
+                                <option value="Starter" selected>Başlangıç</option>
+                                <option value="İçecek">İçecek</option>
+                                <option value="Tatlı">Tatlı</option>
+                            </select>
+                        </td>
+                        <td><input type="number" value="200" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="8.25" step="0.01" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="15" onchange="updateCalculations()"></td>
+                        <td class="input"><input type="number" value="12" onchange="updateCalculations()"></td>
+                        <td class="calculated">10.48</td>
+                        <td class="input"><input type="number" value="35" onchange="updateCalculations()"></td>
+                        <td class="profit">16.12</td>
+                        <td class="profit">5.64</td>
+                        <td class="calculated">53.8%</td>
+                        <td><button class="delete-btn" onclick="deleteRow(this)">Sil</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary" id="summary">
+            <h3>📈 Özet Analiz</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div>
+                    <strong>Toplam Öğe Sayısı:</strong><br>
+                    <span style="font-size: 24px;">4</span>
+                </div>
+                <div>
+                    <strong>Ortalama Kar Marjı:</strong><br>
+                    <span style="font-size: 24px;">35.8%</span>
+                </div>
+                <div>
+                    <strong>Toplam Potansiyel Ciro:</strong><br>
+                    <span style="font-size: 24px;">88.48₺</span>
+                </div>
+                <div>
+                    <strong>Toplam Net Kar:</strong><br>
+                    <span style="font-size: 24px;">27.82₺</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💡 Maliyet Detay Hesaplama Rehberi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">Malzeme Maliyeti Hesaplama (Döner Örneği)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Et (150gr × 45₺/kg)</td>
+                        <td>6.75₺</td>
+                    </tr>
+                    <tr>
+                        <td>Ekmek (1 adet)</td>
+                        <td>2.50₺</td>
+                    </tr>
+                    <tr>
+                        <td>Sebze (soğan, domates, salata)</td>
+                        <td>3.25₺</td>
+                    </tr>
+                    <tr>
+                        <td>Sos ve baharatlar</td>
+                        <td>1.50₺</td>
+                    </tr>
+                    <tr>
+                        <td>Ambalaj maliyeti</td>
+                        <td>1.50₺</td>
+                    </tr>
+                    <tr class="calculated">
+                        <td><strong>Toplam Malzeme Maliyeti</strong></td>
+                        <td><strong>15.50₺</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>⚙️ Genel Gider Kalemleri</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gider Kalemi</th>
+                        <th>Aylık Tutar (₺)</th>
+                        <th>Günlük (₺)</th>
+                        <th>Porsiyon Başı (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Kira</td>
+                        <td>25,000</td>
+                        <td>833</td>
+                        <td>8%</td>
+                    </tr>
+                    <tr>
+                        <td>Elektrik, Su, Doğalgaz</td>
+                        <td>8,000</td>
+                        <td>267</td>
+                        <td>3%</td>
+                    </tr>
+                    <tr>
+                        <td>Amortisman</td>
+                        <td>5,000</td>
+                        <td>167</td>
+                        <td>2%</td>
+                    </tr>
+                    <tr>
+                        <td>Sigorta & Vergiler</td>
+                        <td>4,000</td>
+                        <td>133</td>
+                        <td>1.5%</td>
+                    </tr>
+                    <tr>
+                        <td>Pazarlama</td>
+                        <td>3,000</td>
+                        <td>100</td>
+                        <td>1%</td>
+                    </tr>
+                    <tr class="calculated">
+                        <td><strong>Toplam</strong></td>
+                        <td><strong>45,000</strong></td>
+                        <td><strong>1,500</strong></td>
+                        <td><strong>15.5%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function updateCalculations() {
+            const table = document.getElementById('menuTable');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            let totalRevenue = 0;
+            let totalProfit = 0;
+            let totalMargin = 0;
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                
+                // Input değerleri al
+                const materialCost = parseFloat(cells[3].querySelector('input').value) || 0;
+                const laborPercent = parseFloat(cells[4].querySelector('input').value) || 0;
+                const overheadPercent = parseFloat(cells[5].querySelector('input').value) || 0;
+                const profitMargin = parseFloat(cells[7].querySelector('input').value) || 0;
+                
+                // Hesaplamalar
+                const laborCost = materialCost * (laborPercent / 100);
+                const overheadCost = materialCost * (overheadPercent / 100);
+                const totalCost = materialCost + laborCost + overheadCost;
+                
+                const sellingPrice = totalCost / (1 - profitMargin / 100);
+                const netProfit = sellingPrice - totalCost;
+                const profitCostRatio = (netProfit / totalCost) * 100;
+                
+                // Sonuçları güncelle
+                cells[6].textContent = totalCost.toFixed(2);
+                cells[8].textContent = sellingPrice.toFixed(2);
+                cells[9].textContent = netProfit.toFixed(2);
+                cells[10].textContent = profitCostRatio.toFixed(1) + '%';
+                
+                // Renk kodlama
+                if (profitMargin < 25) {
+                    cells[8].className = 'warning';
+                } else {
+                    cells[8].className = 'profit';
+                }
+                
+                totalRevenue += sellingPrice;
+                totalProfit += netProfit;
+                totalMargin += profitMargin;
+            });
+            
+            // Özeti güncelle
+            const avgMargin = totalMargin / rows.length;
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <h3>📈 Özet Analiz</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong>Toplam Öğe Sayısı:</strong><br>
+                        <span style="font-size: 24px;">${rows.length}</span>
+                    </div>
+                    <div>
+                        <strong>Ortalama Kar Marjı:</strong><br>
+                        <span style="font-size: 24px;">${avgMargin.toFixed(1)}%</span>
+                    </div>
+                    <div>
+                        <strong>Toplam Potansiyel Ciro:</strong><br>
+                        <span style="font-size: 24px;">${totalRevenue.toFixed(2)}₺</span>
+                    </div>
+                    <div>
+                        <strong>Toplam Net Kar:</strong><br>
+                        <span style="font-size: 24px;">${totalProfit.toFixed(2)}₺</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function addMenuItem() {
+            const table = document.getElementById('menuTable').querySelector('tbody');
+            const newRow = table.insertRow();
+            
+            newRow.innerHTML = `
+                <td><input type="text" value="Yeni Ürün" onchange="updateCalculations()"></td>
+                <td>
+                    <select onchange="updateCalculations()">
+                        <option value="Ana Yemek">Ana Yemek</option>
+                        <option value="Starter">Başlangıç</option>
+                        <option value="İçecek">İçecek</option>
+                        <option value="Tatlı">Tatlı</option>
+                    </select>
+                </td>
+                <td><input type="number" value="0" onchange="updateCalculations()"></td>
+                <td class="input"><input type="number" value="0" step="0.01" onchange="updateCalculations()"></td>
+                <td class="input"><input type="number" value="20" onchange="updateCalculations()"></td>
+                <td class="input"><input type="number" value="15" onchange="updateCalculations()"></td>
+                <td class="calculated">0.00</td>
+                <td class="input"><input type="number" value="30" onchange="updateCalculations()"></td>
+                <td class="profit">0.00</td>
+                <td class="profit">0.00</td>
+                <td class="calculated">0.0%</td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">Sil</button></td>
+            `;
+            
+            updateCalculations();
+        }
+        
+        function deleteRow(btn) {
+            btn.closest('tr').remove();
+            updateCalculations();
+        }
+        
+        // Sayfa yüklendiğinde hesaplamaları başlat
+        window.onload = function() {
+            updateCalculations();
+        };
+    </script>
+</body>
+</html>
